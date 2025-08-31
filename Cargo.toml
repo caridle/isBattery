@@ -1,0 +1,36 @@
+[package]
+name = "isbattery"
+version = "0.1.0"
+description = "电源监控程序"
+authors = ["author"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1.0", features = [] }
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tauri = { version = "1.0", features = ["dialog-message", "dialog-open", "dialog-save", "notification-all", "shell-open", "window-close", "window-hide", "window-maximize", "window-minimize", "window-set-focus", "window-show", "window-unmaximize", "window-unminimize", "system-tray"] }
+tokio = { version = "1", features = ["full"] }
+toml = "0.8"
+dirs = "5.0"
+auto-launch = "0.5"
+notify-rust = "4"
+rodio = { version = "0.17", default-features = false, features = ["wav"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.52", features = [
+    "Win32_System_Power",
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+] }
+
+[features]
+# this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
+# If you use cargo directly instead of tauri's cli you can use this feature flag to switch between tauri's `dev` and `build` modes.
+# DO NOT REMOVE!!
+custom-protocol = [ "tauri/custom-protocol" ]

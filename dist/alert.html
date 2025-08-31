@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>电源提醒</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            overflow: hidden;
+        }
+        
+        .alert-container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+        }
+        
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .alert-message {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .battery-info {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+        
+        .power-info {
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #FF6B35;
+        }
+        
+        .btn-primary:hover {
+            background: #f0f0f0;
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .low-battery {
+            background: linear-gradient(135deg, #FF0000 0%, #CC0000 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-container">
+        <div class="alert-icon" id="alert-icon">⚡</div>
+        <div class="alert-title" id="alert-title">电源提醒</div>
+        <div class="alert-message" id="alert-message">请连接电源适配器</div>
+        <div class="battery-info" id="battery-info">当前电量：100%</div>
+        <div class="power-info" id="power-info" style="display: none;">
+            <div id="power-draw">当前功耗：-- W</div>
+            <div id="remaining-time">剩余时间：-- </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-secondary" onclick="pauseMonitoring()">暂停监控</button>
+            <button class="btn-primary" onclick="closeAlert()">我知道了</button>
+        </div>
+    </div>
+
+    <script>
+        let alertConfig = null;
+        
+        // 安全的 Tauri API 调用
+        function safeListenEvent(eventName, callback) {
+            if (window.__TAURI__ && window.__TAURI__.event && window.__TAURI__.event.listen) {
+                return window.__TAURI__.event.listen(eventName, callback);
+            } else if (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.event && window.__TAURI__.tauri.event.listen) {
+                return window.__TAURI__.tauri.event.listen(eventName, callback);
+            } else {
+                console.error('Tauri event API not available');
+                return Promise.resolve();
+            }
+        }
+        
+        // 监听配置数据
+        window.addEventListener('DOMContentLoaded', () => {
+            // 延迟等待 Tauri 初始化
+            setTimeout(() => {
+                safeListenEvent('alert-config', (event) => {
+                    console.log('Received alert config:', event.payload);
+                    alertConfig = event.payload;
+                    updateUI(alertConfig);
+                });
+                
+                // 如果 2 秒后还没收到配置，记录错误信息
+                setTimeout(() => {
+                    if (!alertConfig) {
+                        console.error('No alert config received from backend');
+                        // 不使用测试数据，等待真实数据
+                    }
+                }, 2000);
+            }, 100);
+        });
+        
+        // 更新界面
+        function updateUI(config) {
+            if (!config) return;
+            
+            const body = document.body;
+            const icon = document.getElementById('alert-icon');
+            const title = document.getElementById('alert-title');
+            const message = document.getElementById('alert-message');
+            const batteryInfo = document.getElementById('battery-info');
+            const powerInfo = document.getElementById('power-info');
+            const powerDraw = document.getElementById('power-draw');
+            const remainingTime = document.getElementById('remaining-time');
+            
+            // 设置背景颜色
+            if (config.background_color === '#FF0000') {
+                body.className = 'low-battery';
+                icon.textContent = '🔋';
+                title.textContent = '电量不足';
+            } else {
+                body.style.background = `linear-gradient(135deg, ${config.background_color} 0%, #F7931E 100%)`;
+                icon.textContent = '⚡';
+                title.textContent = '电源提醒';
+            }
+            
+            // 设置消息内容
+            message.textContent = config.message;
+            
+            // 设置电池信息
+            if (config.show_battery_info) {
+                batteryInfo.textContent = `当前电量：${config.battery_percentage}%`;
+                batteryInfo.style.display = 'block';
+            } else {
+                batteryInfo.style.display = 'none';
+            }
+            
+            // 显示功率信息
+            let showPowerInfo = false;
+            
+            if (config.power_draw_watts !== null && config.power_draw_watts !== undefined) {
+                powerDraw.textContent = `当前功耗：${config.power_draw_watts.toFixed(1)}W`;
+                powerDraw.style.display = 'block';
+                showPowerInfo = true;
+            } else {
+                powerDraw.style.display = 'none';
+            }
+            
+            if (config.remaining_time_minutes !== null && config.remaining_time_minutes !== undefined && config.remaining_time_minutes > 0) {
+                const hours = Math.floor(config.remaining_time_minutes / 60);
+                const minutes = config.remaining_time_minutes % 60;
+                if (hours > 0) {
+                    remainingTime.textContent = `剩余时间：${hours}h${minutes}m`;
+                } else {
+                    remainingTime.textContent = `剩余时间：${minutes}m`;
+                }
+                remainingTime.style.display = 'block';
+                showPowerInfo = true;
+            } else {
+                remainingTime.style.display = 'none';
+            }
+            
+            // 显示或隐藏功率信息区域
+            if (showPowerInfo) {
+                powerInfo.style.display = 'block';
+            } else {
+                powerInfo.style.display = 'none';
+            }
+        }
+        
+        // 安全的 Tauri invoke 调用
+        async function safeInvoke(command, args = {}) {
+            if (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.invoke) {
+                return await window.__TAURI__.tauri.invoke(command, args);
+            } else if (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) {
+                return await window.__TAURI__.core.invoke(command, args);
+            } else if (window.__TAURI__ && window.__TAURI__.invoke) {
+                return await window.__TAURI__.invoke(command, args);
+            } else {
+                throw new Error('Tauri API 不可用');
+            }
+        }
+        
+        // 关闭提醒
+        async function closeAlert() {
+            try {
+                // 获取当前窗口并关闭
+                if (window.__TAURI__ && window.__TAURI__.window) {
+                    const currentWindow = window.__TAURI__.window.getCurrent();
+                    await currentWindow.close();
+                } else {
+                    console.error('Tauri window API not available');
+                }
+            } catch (error) {
+                console.error('Failed to close alert:', error);
+            }
+        }
+        
+        // 暂停监控
+        async function pauseMonitoring() {
+            try {
+                await safeInvoke('pause_monitoring_from_alert');
+                await closeAlert();
+            } catch (error) {
+                console.error('Failed to pause monitoring:', error);
+            }
+        }
+    </script>
+</body>
+</html>

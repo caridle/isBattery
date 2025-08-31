@@ -1,0 +1,77 @@
+# Rust
+/target
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Tauri
+/src-tauri/target
+/src-tauri/Cargo.lock
+/src-tauri/WixTools
+
+# Build outputs
+/dist/*.exe
+/dist/*.msi
+/dist/*.app
+/dist/*.deb
+/dist/*.AppImage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node.js (if using npm/yarn)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+logs/
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.tmp
+*.temp
+
+# Windows
+*.exe
+*.msi
+*.msm
+*.msp
+
+# Configuration (keep templates, ignore user configs)
+config/*.toml
+!config/default.toml
+
+# Test outputs
+coverage/
+.nyc_output/
+
+# Package managers
+package-lock.json
+yarn.lock

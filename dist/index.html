@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>isBattery 设置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .color-input {
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>isBattery 设置</h1>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('monitoring')">监控设置</button>
+                <button class="tab-button" onclick="showTab('ui')">界面设置</button>
+                <button class="tab-button" onclick="showTab('system')">系统设置</button>
+            </div>
+        </div>
+        
+        <div id="monitoring" class="tab-content active">
+            <div class="form-group">
+                <label for="check-interval">检测间隔 (秒)</label>
+                <input type="number" id="check-interval" min="5" max="3600" value="10">
+            </div>
+            
+            <div class="form-group">
+                <label for="low-battery-threshold">低电量阈值 (%)</label>
+                <input type="number" id="low-battery-threshold" min="5" max="50" value="20">
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="sound-enabled" checked>
+                    <label for="sound-enabled">启用声音提醒</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="auto-close-alert" checked>
+                    <label for="auto-close-alert">电源连接后自动关闭提醒</label>
+                </div>
+            </div>
+        </div>
+        
+        <div id="ui" class="tab-content">
+            <div class="form-group">
+                <label for="alert-color">电源断开提醒颜色</label>
+                <input type="color" id="alert-color" class="color-input" value="#FF6B35">
+            </div>
+            
+            <div class="form-group">
+                <label for="low-battery-color">低电量提醒颜色</label>
+                <input type="color" id="low-battery-color" class="color-input" value="#FF0000">
+            </div>
+            
+            <div class="form-group">
+                <label for="window-opacity">窗口透明度</label>
+                <input type="range" id="window-opacity" min="0.5" max="1" step="0.05" value="0.95">
+                <span id="opacity-value">95%</span>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="always-on-top" checked>
+                    <label for="always-on-top">窗口置顶</label>
+                </div>
+            </div>
+        </div>
+        
+        <div id="system" class="tab-content">
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="auto-startup">
+                    <label for="auto-startup">开机自启动</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="minimize-to-tray" checked>
+                    <label for="minimize-to-tray">最小化到托盘</label>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div class="button-group">
+            <button class="btn-secondary" onclick="resetSettings()">重置默认</button>
+            <button class="btn-secondary" onclick="testAudio()">测试音频</button>
+            <button class="btn-secondary" onclick="debugPowerStatus()">调试电量</button>
+            <button class="btn-primary" onclick="saveSettings()">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        // 简单直接的方法
+        window.addEventListener('DOMContentLoaded', () => {
+            // 给 Tauri 一些时间初始化
+            setTimeout(async () => {
+                try {
+                    await loadSettings();
+                } catch (error) {
+                    console.error('初始化失败:', error);
+                    showStatus('初始化失败: ' + error, 'error');
+                }
+            }, 1000);
+        });
+        
+        let currentSettings = null;
+        
+        // 安全的 invoke 调用
+        async function safeInvoke(command, args = {}) {
+            if (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.tauri.invoke) {
+                return await window.__TAURI__.tauri.invoke(command, args);
+            } else if (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke) {
+                return await window.__TAURI__.core.invoke(command, args);
+            } else if (window.__TAURI__ && window.__TAURI__.invoke) {
+                return await window.__TAURI__.invoke(command, args);
+            } else {
+                throw new Error('Tauri API 不可用');
+            }
+        }
+        
+        // 显示状态消息
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+            
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 标签页切换
+        function showTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有按钮的激活状态
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(tabName).classList.add('active');
+            
+            // 激活对应的按钮
+            event.target.classList.add('active');
+        }
+        
+        // 加载设置
+        async function loadSettings() {
+            try {
+                const settings = await safeInvoke('get_settings');
+                currentSettings = settings;
+                updateUI(settings);
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+                showStatus('加载设置失败: ' + error, 'error');
+            }
+        }
+        
+        // 更新UI
+        function updateUI(settings) {
+            // 监控设置
+            document.getElementById('check-interval').value = settings.monitoring.check_interval;
+            document.getElementById('low-battery-threshold').value = settings.monitoring.low_battery_threshold;
+            document.getElementById('sound-enabled').checked = settings.monitoring.sound_enabled;
+            document.getElementById('auto-close-alert').checked = settings.monitoring.auto_close_alert;
+            
+            // UI设置
+            document.getElementById('alert-color').value = settings.ui.alert_color;
+            document.getElementById('low-battery-color').value = settings.ui.low_battery_color;
+            document.getElementById('window-opacity').value = settings.ui.window_opacity;
+            document.getElementById('opacity-value').textContent = Math.round(settings.ui.window_opacity * 100) + '%';
+            document.getElementById('always-on-top').checked = settings.ui.always_on_top;
+            
+            // 系统设置
+            document.getElementById('auto-startup').checked = settings.system.auto_startup;
+            document.getElementById('minimize-to-tray').checked = settings.system.minimize_to_tray;
+        }
+        
+        // 保存设置
+        async function saveSettings() {
+            try {
+                const settings = {
+                    monitoring: {
+                        check_interval: parseInt(document.getElementById('check-interval').value),
+                        low_battery_threshold: parseInt(document.getElementById('low-battery-threshold').value),
+                        sound_enabled: document.getElementById('sound-enabled').checked,
+                        auto_close_alert: document.getElementById('auto-close-alert').checked,
+                    },
+                    ui: {
+                        alert_color: document.getElementById('alert-color').value,
+                        low_battery_color: document.getElementById('low-battery-color').value,
+                        window_opacity: parseFloat(document.getElementById('window-opacity').value),
+                        always_on_top: document.getElementById('always-on-top').checked,
+                    },
+                    system: {
+                        auto_startup: document.getElementById('auto-startup').checked,
+                        minimize_to_tray: document.getElementById('minimize-to-tray').checked,
+                    }
+                };
+                
+                // 验证设置
+                await safeInvoke('validate_settings', { settings });
+                
+                // 保存设置
+                await safeInvoke('save_settings', { settings });
+                
+                currentSettings = settings;
+                showStatus('设置已保存');
+            } catch (error) {
+                console.error('Failed to save settings:', error);
+                showStatus('保存设置失败: ' + error, 'error');
+            }
+        }
+        
+        // 重置设置
+        async function resetSettings() {
+            if (confirm('确定要重置所有设置为默认值吗？')) {
+                try {
+                    const settings = await safeInvoke('reset_settings');
+                    currentSettings = settings;
+                    updateUI(settings);
+                    showStatus('设置已重置为默认值');
+                } catch (error) {
+                    console.error('Failed to reset settings:', error);
+                    showStatus('重置设置失败: ' + error, 'error');
+                }
+            }
+        }
+        
+        // 测试音频
+        async function testAudio() {
+            try {
+                await safeInvoke('test_audio_alert');
+                showStatus('音频测试完成');
+            } catch (error) {
+                console.error('Failed to test audio:', error);
+                showStatus('音频测试失败: ' + error, 'error');
+            }
+        }
+        
+        // 调试电量状态
+        async function debugPowerStatus() {
+            try {
+                const debugInfo = await safeInvoke('debug_power_status');
+                alert('电源状态调试信息:\n' + debugInfo);
+            } catch (error) {
+                console.error('Failed to get debug info:', error);
+                showStatus('获取电源状态失败: ' + error, 'error');
+            }
+        }
+        
+        // 透明度滑块事件
+        document.getElementById('window-opacity').addEventListener('input', function() {
+            document.getElementById('opacity-value').textContent = Math.round(this.value * 100) + '%';
+        });
+    </script>
+</body>
+</html>

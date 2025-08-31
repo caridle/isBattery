@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.tauri.app/config/1.0",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devPath": "dist",
+    "distDir": "dist",
+    "withGlobalTauri": true
+  },
+  "package": {
+    "productName": "isBattery",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "dialog": {
+        "all": false,
+        "open": true,
+        "save": true,
+        "message": true
+      },
+      "notification": {
+        "all": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "setFocus": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.isbattery.app",
+      "icon": [
+        "icons/32x32.png",
+        "icons/icon.ico"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "systemTray": {
+      "iconPath": "icon.ico",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "resizable": true,
+        "title": "isBattery Settings",
+        "width": 500,
+        "height": 600,
+        "visible": false,
+        "center": true,
+        "decorations": true,
+        "alwaysOnTop": false,
+        "skipTaskbar": false,
+        "label": "main",
+        "url": "index.html",
+        "focus": false
+      }
+    ]
+  }
+}
